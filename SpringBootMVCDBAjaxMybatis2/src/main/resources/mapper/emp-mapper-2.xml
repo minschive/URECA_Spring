@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycom.myapp.dao.EmpDao">
+
+
+    <select id="listEmpLike" parameterType="string" resultType="com.mycom.myapp.dto.EmpDto">
+        select employeeId, first_name, last_name, email, hiredate
+        from emp
+        where last_name like concat('%', #{searchWord}, '%');
+    </select>
+
+    <!-- 다양한 select 항목들에 대해 유연하게 대응하기 위한 처리 ResultSet 대애한 처리를 유연하게.
+         여러 테이블 조인한 결과, Dto 의 일부 항목만 처리, 컬럼명이 카멜표기법으로 자동전환이 어려운 경우 .....
+
+     -->
+    <resultMap id="empMap" type="com.mycom.myapp.dto.EmpDto">
+        <result property="employeeId" column="employeeId"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/><!-- lastName 으로 변경해 본다. -->
+    </resultMap>
+
+    <select id="listEmpMap" resultMap="empMap">
+        select employeeId, first_name, last_name
+        from emp;
+    </select>
+
+    <select id="listEmpWhereIf" parameterType="map" resultType="com.mycom.myapp.dto.EmpDto">
+        select employeeId, first_name, last_name, email, hiredate
+        from emp
+        <where>
+
+            <if test="firstName != null">
+                first_name = #{firstName}
+            </if>
+
+            <if test="lastName != null">
+                and last_name = #{lastName}
+            </if>
+            <if test="email != null">
+                and email = #{email}
+            </if>
+        </where>
+    </select>
+</mapper>
