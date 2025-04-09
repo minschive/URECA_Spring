@@ -24,11 +24,11 @@
     <form novalidate>
         <div class="mb-3">
             <label for="userEmail" class="form-label">User Email:</label>
-            <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="Enter Email" value="ureca@naver.com">
+            <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="Enter Email" value="dskim@dskim.com">
         </div>
         <div class="mb-3">
             <label for="userPassword" class="form-label">Password:</label>
-            <input type="password" class="form-control" id="userPassword" name="userPassword" placeholder="Enter Password" value="ureca1234!">
+            <input type="password" class="form-control" id="userPassword" name="userPassword" placeholder="Enter Password" value="1234">
         </div>
     </form>
     <div>

@@ -21,6 +21,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         UserDto userDto = (UserDto) session.getAttribute("userDto");
 
         if(userDto == null) { // 로그인하지 않은 사용자일 때
+
             // ajax 요청
             // client 가 header 에 "ajax":"true" <= board.jsp
             // {"result":"login"} json 문자열 응답
@@ -29,8 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
                 System.out.println("LoginInterceptor >>>>> ajax request ");
                 response.getWriter().write(jsonStr);
 
-                // page 요청
-                // => login 페이지로 이동 (redirection)
+            // page 요청
+            // => login 페이지로 이동 (redirection)
             } else {
                 System.out.println("LoginInterceptor >>>>> page request ");
                 response.sendRedirect("/pages/login");
