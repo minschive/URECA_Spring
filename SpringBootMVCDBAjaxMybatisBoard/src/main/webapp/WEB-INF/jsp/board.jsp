@@ -65,6 +65,8 @@
         </tbody>
     </table>
 
+    <div id="paginationWrapper"></div>
+
     <button type="button" id="btnInsertPage" class="btn btn-sm btn-primary">글쓰기</button>
 </div>
 <div class="modal" tabindex="-1" id="detailBoardModal">
@@ -152,6 +154,9 @@
     let SEARCH_WORD = ''; // searchWord
     let TOTAL_LIST_COUNT = 0; // 조회된 건수
 
+    let PAGE_LINK_COUNT = 10; // 페이지에 보여줄 Pagination Button 수
+    let CURRENT_PAGE_INDEX = 1; // Pagination Button 들 중 현재 Page Button 번호
+
     window.onload = function(){
         // 글 목록
         listBoard();
@@ -236,11 +241,17 @@
         if( data.result == "success" ){
             makeListHtml(data.list)
             TOTAL_LIST_COUNT = data.count;
-        }else if( data.result == "fail" ){
+            addPagination();
+        }else if( data.result == "fail" ){ // network 장애, 일시, filter 거부 ....
             alert("글 조회 과정에서 오류 발생")
         }else if( data.result == "login" ){
             window.location.href = "/pages/login";
+        } else if( data.result == "exception") { // business logic 처리 상황 .....
+            alert("글 조회 과정에서 예외 발생");
         }
+
+        // 위 fail, exception 하나로 or 위처럼 분리 처리
+        else if(data.result == "fail" || data.resut == "exception") { }
     }
 
     function makeListHtml(list){
@@ -274,6 +285,18 @@
                 detailBoard(boardId);
             }
         } );
+    }
+
+    function addPagination() {
+        // Pagination 은 여러 화면에서 함께 사용될 수 있는 공통 컴포넌트
+        // 한 곳에 만들어 두고 여러 화면에서 사용 => util.js 에 구현하고 여기는 가져다 사용
+        makePaginationHtml(LIST_ROW_COUNT, PAGE_LINK_COUNT, CURRENT_PAGE_INDEX, TOTAL_LIST_COUNT, "paginationWrapper");
+    }
+
+    function movePage(pageIndex) {
+        OFFSET = (pageIndex - 1)  * LIST_ROW_COUNT;
+        CURRENT_PAGE_INDEX = pageIndex;
+        listBoard();
     }
 
     async function detailBoard(boardId){

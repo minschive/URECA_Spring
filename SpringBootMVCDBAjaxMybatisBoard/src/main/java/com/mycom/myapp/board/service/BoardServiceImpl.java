@@ -5,6 +5,8 @@ import com.mycom.myapp.board.dto.BoardDto;
 import com.mycom.myapp.board.dto.BoardParamDto;
 import com.mycom.myapp.board.dto.BoardResultDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
 
@@ -60,12 +62,37 @@ public class BoardServiceImpl implements BoardService {
     }
 
     // 게시글 상세 정보 + 조회수 처리
+    // transaction test
+    //  1. @Transactional 사용 X 경우 (Spring Transaction 관리 AOP 관여 X)
+    //     insert O, update X
+    //  2. @Transactional 사용 O 경우 (Spring Transaction 관리 AOP 관여 O, PointCut 에 추가)
+    //      1. RuntimeException 계열 객체 throw => Transaction 관리 AOP 에 전달 => rollback
+    //      2. 예외 발생 X => Transaction 관리 AOP 가 commit
+    //      3. RuntimeException 계열 객체 throw 가 되어도 try-catch 로 묶어버리면 Transaction 관리 AOP 에 전달 X
+    //          catch block에서 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); 을 통해 rollback 처리
     @Override
+    @Transactional
     public BoardResultDto detailBoard(BoardParamDto boardParamDto) {
         BoardResultDto boardResultDto = new BoardResultDto();
 
         try {
-            // 조회수 처리 (나중에)
+            // 조회수 처리
+            // 현재 게시글에 대한 현재 사용자의 조회 여부 확인
+            int userReadCnt = boardDao.countBoardUserRead(boardParamDto);
+
+            System.out.println("boardId : " + boardParamDto.getBoardId());
+            System.out.println("userSeq : " + boardParamDto.getUserSeq());
+            System.out.println("userReadCnt : " + userReadCnt);
+
+            if(userReadCnt == 0) { // 현재 게시글을 처음 읽는 상황
+                boardDao.insertBoardUserRead(boardParamDto); // 현재 게시글을 현재 사용자가 읽었다. 표시 등록
+
+                // transaction test
+                String s = null;
+                s.length();
+
+                boardDao.updateBoardReadCount(boardParamDto.getBoardId()); // 현재 게시글 조회수 증가 처리
+            }
 
             // 게시글 상세 정보
             BoardDto boardDto = boardDao.detailBoard(boardParamDto);
@@ -80,6 +107,13 @@ public class BoardServiceImpl implements BoardService {
         } catch(Exception e) {
             e.printStackTrace();
             boardResultDto.setResult("fail");
+
+            // Spring 제안 방법
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+            // RuntimeException 객체 생성 & throw
+//            throw new RuntimeException("~~~~");
+//            throw new IllegalStateException("~~~~~");
         }
         return boardResultDto;
     }

@@ -13,4 +13,9 @@ public interface BoardService {
     BoardResultDto insertBoard(BoardDto boardDto);
     BoardResultDto updateBoard(BoardDto boardDto);
     BoardResultDto deleteBoard(int boardId);
+
+
+    // Controller 가 바라보는 BoardService 는 별도의 조회수 관련 메소드를 따로 가지지 않는다.
+    // detailBoard() 에서 모두 처리
+    // Controller 는 Business Logic 인 조회수 처리에 관여 X, 관심 X
 }
