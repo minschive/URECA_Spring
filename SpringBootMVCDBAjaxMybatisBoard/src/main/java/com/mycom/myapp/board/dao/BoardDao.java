@@ -30,4 +30,7 @@ public interface BoardDao {
     int insertBoardUserRead(BoardParamDto boardParamDto);
     // 현재 게시글의 조회수 증가
     int updateBoardReadCount(int boardId);
+
+    // 사용자 조회 삭제
+    int deleteBoardUserRead(int boardId); // board_user_read 테이블에서 입력받은 boardId에 맞는 해당 값을 삭제
 }

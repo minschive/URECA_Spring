@@ -71,4 +71,8 @@
            set read_count = read_count + 1
          where board_id = #{boardId};
     </update>
+
+    <delete id="deleteBoardUserRead" parameterType="int">
+        delete from board_user_read where board_id = #{boardId}
+    </delete>
 </mapper>
