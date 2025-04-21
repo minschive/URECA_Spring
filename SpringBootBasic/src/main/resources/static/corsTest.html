@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>corsTest.html</h1>
+    <br>
+    <button id="btnGetRequest">Get 요청</button>
+    <button id="btnPostRequest">Post 요청</button>
+    <button id="btnPutRequest">Put 요청</button>
+    <button id="btnDeleteRequest">Delete 요청</button>
+
+    <script>
+        window.onload = function(){
+            // 이벤트 핸들러 등록
+            document.querySelector("#btnGetRequest").onclick = makeGetRequest;
+            document.querySelector("#btnPostRequest").onclick = makePostRequest;
+            document.querySelector("#btnPutRequest").onclick = makePutRequest;
+            document.querySelector("#btnDeleteRequest").onclick = makeDeleteRequest;
+        }
+
+        async function makeGetRequest(){
+            try{
+                let response = await fetch('http://localhost:8080/cors?param=1');
+                let data = await response.json();
+                console.log( data );
+            }catch(error){
+                console.log(error)
+            }
+        }
+        async function makePostRequest(){
+            let urlParams = new URLSearchParams( { param:2 } );
+            let fetchOptions = {
+                method : "POST",
+                body : urlParams
+            }
+            try{
+                let response = await fetch('http://localhost:8080/cors', fetchOptions);
+                let data = await response.json();
+                console.log( data );
+            }catch(error){
+                console.log(error)
+            }
+        }
+        async function makePutRequest(){
+            let urlParams = new URLSearchParams( { param:3 } );
+            let fetchOptions = {
+                method : "PUT",
+                body : urlParams
+            }
+            try{
+                let response = await fetch('http://localhost:8080/cors/123', fetchOptions);
+                let data = await response.json();
+                console.log( data );
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+        async function makeDeleteRequest(){
+            let fetchOptions = {
+                method : "DELETE",
+            }
+            try{
+                let response = await fetch('http://localhost:8080/cors/123', fetchOptions);
+                let data = await response.json();
+                console.log( data );
+            }catch(error){
+                console.log(error)
+            }
+        }
+    </script>
+</body>
+</html>
