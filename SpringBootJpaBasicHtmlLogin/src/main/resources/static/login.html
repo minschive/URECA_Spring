@@ -48,22 +48,25 @@
 
             console.log(data);
 
-            if( data.result == 'success' ) {
+            if( data.result == 'success' ){
 
                 // userRoles
-                // Client 에서 화면 제어할 때 사용
+                // Client 에서 화면 제어 사용
                 let roles = data.userDto.roles;
+                console.log(roles); // {1: 'role_customer', 2: 'role_seller', 3: 'role_admin'}
+
+                // value 만 필요할 때
                 let values = Object.values(roles);
-                console.log(values);
+                console.log(values); // ['role_customer', 'role_seller', 'role_admin']
 
                 // user 의 name, email 을 이후 사용하려 한다.
                 sessionStorage.setItem("name", data.userDto.name);
                 sessionStorage.setItem("email", data.userDto.email);
 
                 // index.html 이동
-                window.location.href = "/index.html";
+                window.location.href ="/index.html";
 
-            } else { // fail or notfound
+            }else{ // fail or notfound
                 alert('로그인 실패');
             }
         }
