@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>login.html</h1>
+    <hr>
+    <div>
+        email : <input type="text" name="email" id="email">
+    </div>
+    <div>
+        password : <input type="password" name="password" id="password">
+    </div>
+    <button id="btnLogin">로그인</button>
+
+    <script>
+        window.onload = function(){
+            document.querySelector("#btnLogin").onclick = login;
+        }
+
+        async function login(){
+            // parameter, value
+            let email = document.querySelector("#email").value;
+            let password = document.querySelector("#password").value;
+
+            console.log(email, password);
+
+            let urlParams = new URLSearchParams({
+                // shorthand property
+//              email: email,
+//              password: password
+                email, password
+            });
+
+            // url
+            let url = "/users/login";
+
+            // post, parameter
+            let fetchOptions = {
+                method: "POST",
+                body:urlParams
+            }
+
+            let response = await fetch(url, fetchOptions);
+            let data = await response.json()
+
+            console.log(data);
+
+            if( data.result == 'success' ){
+
+                // userRoles
+                // Client 에서 화면 제어 사용
+                let roles = data.userDto.roles;
+                console.log(roles); // {1: 'role_customer', 2: 'role_seller', 3: 'role_admin'}
+
+                // value 만 필요할 때
+                let values = Object.values(roles);
+                console.log(values); // ['role_customer', 'role_seller', 'role_admin']
+
+                // user 의 name, email 을 이후 사용하려 한다.
+                sessionStorage.setItem("name", data.userDto.name);
+                sessionStorage.setItem("email", data.userDto.email);
+
+                // index.html 이동
+                window.location.href ="/index.html";
+
+            }else{ // fail or notfound
+                alert('로그인 실패');
+            }
+        }
+    </script>
+</body>
+</html>

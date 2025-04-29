@@ -1,27 +1,25 @@
-    window.onload =function () {
-        initUI();
-
-        // 로그아웃
-        document.querySelector("#linkLogout").onclick = logout
-}
-
-    function initUI() {
+function initUI() {
         // 로그인 상태를 확인 UI 처리
         let name = sessionStorage.getItem("name");
 
-        if( name != null ){
+        if( name != null ) {
         document.querySelector("#userName").innerHTML = name;
         document.querySelector("#userNameWrapper").style.display='inline';
         document.querySelector("#linkLogout").style.display='inline';
 
         document.querySelector("#linkLogin").style.display='none';
-    }else{
+        document.querySelector("#linkRegister").style.display='none';
+    } else {
         document.querySelector("#userName").innerHTML = '';
         document.querySelector("#userNameWrapper").style.display='none';
         document.querySelector("#linkLogout").style.display='none';
 
         document.querySelector("#linkLogin").style.display='inline';
+        document.querySelector("#linkRegister").style.display='inline';
     }
+
+        // navbar show
+        document.querySelector("#navbar").style.display='block';
 }
 
     async function logout(){
