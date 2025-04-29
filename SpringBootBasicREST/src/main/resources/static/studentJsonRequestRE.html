@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Student Test</title>
+</head>
+<body>
+<h1>StudentJsonRequestRE.html</h1>
+<hr>
+<table>
+    <thead>
+    <tr><td>Id</td><td>Name</td><td>email</td><td>phone</td></tr>
+    </thead>
+    <tbody id="tbodyStudent"></tbody>
+</table>
+<hr>
+<form>
+    <table>
+        <tbody>
+        <tr><td>Name</td><td><input type="text" name="name" id="inputName"></td></tr>
+        <tr><td>Email</td><td><input type="text" name="email" id="inputEmail"></td></tr>
+        <tr><td>Phone</td><td><input type="text" name="phone" id="inputPhone"></td></tr>
+        </tbody>
+    </table>
+</form>
+<div style="border: 1px; margin: auto; text-align: center">
+    <button id="btnInsert">등록</button>
+    <button id="btnUpdate">수정</button>
+    <button id="btnDelete">삭제</button>
+    <button id="btnClear">초기화</button>
+</div>
+
+<script>
+
+    // 이전 html 과 다르게, StudentResultDto 를 JSON 으로 받아서 결과값(result) 에 따른 처리코드가 없다.
+    var CURRENT_ID;
+
+    window.onload = function(){
+
+        listStudent();
+
+        // 이벤트 핸들러 등록
+        document.querySelector("#btnInsert").onclick = insertStudent;
+        document.querySelector("#btnUpdate").onclick = updateStudent;
+        document.querySelector("#btnDelete").onclick = deleteStudent;
+        document.querySelector("#btnClear").onclick = clear;
+    }
+
+    async function listStudent(){
+
+        // 이전 data.result 를 이용한 코드
+        // let response = await fetch('/api/json/re/students');
+        // let data = await response.json();
+        // console.log(data);
+        // // data 가 정상적으로 내려오면 data 의 result 를 보고 처리가 가능
+        // if(data.result == "success") {
+        //     makeListHtml(data.studentList);
+        // } else if(data.result == "fail") {
+        //     alert("목록 조회 중 오류 발생");
+        // }
+
+        try {
+            let response = await fetch('/api/json/re/students');
+            console.log(response)
+            let data = await response.json();
+            // let {studentList} = await response.json();
+            console.log(data);
+            // try - catch 를 사용하더라도 data 가 정상적으로 내려오면 data 의 result 를 보고 처리가 가능
+            // response.json() 을 통해서 body 의 data 를 처리하는 과정에서 data 가 없으면 catch 로 이동
+            // body 에 data 가 없어도, fetch() 의 결과를 받는 코드까지는 오류 발생 X
+            makeListHtml( data.studentList );
+        }catch(error){
+            alert("학생 조회 과정 중 오류가 발생했습니다.")
+            console.log(error)
+        }
+    }
+
+    function makeListHtml(list){
+        let listHtml = ``;
+        list.forEach( el => {
+            let id = el.id;
+            let name = el.name;
+            let email = el.email;
+            let phone = el.phone;
+
+            listHtml += `<tr style="cursor: pointer;" data-id=${id}><td>${id}</td><td>${name}</td><td>${email}</td><td>${phone}</td></tr>`;
+        });
+
+        document.querySelector("#tbodyStudent").innerHTML = listHtml;
+
+        document.querySelectorAll("#tbodyStudent tr").forEach( el => {
+            el.onclick = function(){
+                let id = this.getAttribute("data-id");
+                detailStudent(id);
+            }
+        });
+    }
+    async function detailStudent(id){
+
+        let url = '/api/json/re/students/' + id;
+        // response 가 404 등 이어도 data 가 채워지면 catch 로 분기 하지 않는다.
+        // Controller 의 인위적인 status code 값이 부여된 상황에서는 try{} 처리
+        // 그 밖의 수행과정 중 오류는 catch
+        try{
+            let response = await fetch(url);
+            console.log(response)
+            let data = await response.json();
+
+            if( response.ok ) { // 200
+                let {studentDto} = await response.json();
+                makeDetailHtml( studentDto );
+            } else {
+                switch( response.status ) {
+                    // 404, 500 일 때 response.json() 코드가 수행된다면 catch() 에서 처리된다.
+                    case 404 : alert("학생 데이터를 찾을 수 없습니다."); break;
+                    case 500 : alert("학생 조회 중 서버 오류가 발생했습니다."); break;
+                }
+            }
+            alert("성공");
+        } catch(error){
+            alert("detail error")
+            console.log(error)
+        }
+    }
+
+    function makeDetailHtml(detail){
+        console.log(detail);
+
+        CURRENT_ID = detail.id;
+
+        document.querySelector("#inputName").value = detail.name;
+        document.querySelector("#inputEmail").value = detail.email;
+        document.querySelector("#inputPhone").value = detail.phone;
+
+    }
+
+    async function insertStudent(){
+
+        let name = document.querySelector("#inputName").value;
+        let email = document.querySelector("#inputEmail").value;
+        let phone = document.querySelector("#inputPhone").value;
+
+        // x-www-urlencoded.
+        // let urlParams = new URLSearchParams({
+        //     name, email, phone
+        // })
+
+        // json <- javascript object 를 특수한 문자열인 json 으로 변경해야 한다.
+        // let obj = { name: name, email: email, phone: phone };
+        // let obj = { name, email, phone }; // javascript object
+        // let jsonParams = JSON.stringify( obj ); // 특수한 문자열 json 으로 변경
+
+        let jsonParams = JSON.stringify( { name, email, phone } ); // 위 모두를 한 줄로
+
+        let fetchOptions = {
+            method : "POST",
+            headers : {
+              "content-type" : "application/json"
+            }, // 추가
+            body: jsonParams, // urlParams -> jsonParams
+        }
+
+        // BE 404 로 리턴해도 이미 DB 에 등록되어서 목록에는 보인다.
+        try{
+            let response = await fetch('/api/json/re/students', fetchOptions)
+            let data = await response.json();
+            console.log(data);
+            listStudent();
+            clear();
+        } catch(error){ // BE 404 에러는 이곳에
+            console.log(error)
+        }
+    }
+    async function updateStudent(){
+        let url = '/api/json/re/students/' + CURRENT_ID;
+
+        // let id = CURRENT_ID;
+        let name = document.querySelector("#inputName").value;
+        let email = document.querySelector("#inputEmail").value;
+        let phone = document.querySelector("#inputPhone").value;
+
+        // let urlParams = new URLSearchParams({
+        //     id, name, email, phone
+        // })
+
+        let jsonParams = JSON.stringify( { name, email, phone } ); // 위 모두를 한 줄로
+
+        let fetchOptions = {
+            method : "PUT",
+            headers : {
+                "content-type" : "application/json"
+            }, // 추가
+            body: jsonParams, // urlParams -> jsonParams
+        }
+
+        try{
+            let response = await fetch(url, fetchOptions)
+            let data = await response.json();
+            console.log(data);
+            listStudent();
+            clear();
+        }catch(error){
+            console.log(error)
+        }
+    }
+
+    async function deleteStudent(){
+        let url = '/api/json/re/students/' + CURRENT_ID;
+        let fetchOptions = {
+            method : "DELETE",
+        }
+
+        try{
+            let response = await fetch(url, fetchOptions)
+            let data = await response.json();
+            console.log(data);
+            listStudent();
+            clear();
+        }catch(error){
+            console.log(error)
+        }
+    }
+
+    function clear(){
+        document.querySelector("#inputName").value = "";
+        document.querySelector("#inputEmail").value = "";
+        document.querySelector("#inputPhone").value = "";
+    }
+
+</script>
+</body>
+</html>
