@@ -29,7 +29,7 @@ public class SecurityConfig {
                                     "/register.html",
                                     "/users/**"
                                     ).permitAll()
-                                    .requestMatchers("/customer/**").hasAnyRole("CUSROMER", "ADMIN")
+                                    .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
                                     .requestMatchers("/admin/**").hasRole("ADMIN")
                                     .anyRequest().authenticated(); // 나머지는 모두 인증
                         }
