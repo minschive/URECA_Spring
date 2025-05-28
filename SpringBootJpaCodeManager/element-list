@@ -1,0 +1,7 @@
+com.mycom.myapp
+com.mycom.myapp.controller
+com.mycom.myapp.dto
+com.mycom.myapp.entity
+com.mycom.myapp.entity.key
+com.mycom.myapp.repository
+com.mycom.myapp.service
